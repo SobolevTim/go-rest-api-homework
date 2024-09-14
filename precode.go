@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -51,10 +52,12 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 // обработка метода POST для эндпоинта `/tasks`
@@ -120,6 +123,11 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	delete(tasks, id)
+	_, ok = tasks[id]
+	if ok {
+		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
