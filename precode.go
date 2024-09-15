@@ -79,6 +79,12 @@ func postTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, ok := tasks[task.ID]
+	if ok {
+		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
+
 	tasks[task.ID] = task
 
 	w.Header().Set("Content-Type", "applicaion/json")
@@ -123,11 +129,6 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	delete(tasks, id)
-	_, ok = tasks[id]
-	if ok {
-		http.Error(w, "", http.StatusBadRequest)
-		return
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
